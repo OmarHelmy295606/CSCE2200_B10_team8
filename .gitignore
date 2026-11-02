@@ -1,0 +1,3 @@
+tests/test_bitset
+tests/test_bddstore
+*.o
