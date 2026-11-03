@@ -1,20 +1,37 @@
 #include "../include/ds/vec.hpp"
 
 template <typename type>
+void vec<type>::reallocate(size_t newCap)
+{
+    size_t s = last - first;                 
+    type* temp = new type[newCap];           
+    for(size_t i=0; i<s; i++)
+        temp[i] = std::move(first[i]);       
+
+    delete[] first;                          
+    first = temp;
+    last = first + s;                       
+    end = first + newCap;                   
+}
+
+template <typename type>
 void vec<type>::grow()
 {
     size_t oldCap = end - first;
-    size_t size = last - first;
-    size_t capacity = (oldCap == 0)? 1: oldCap*2;
-    
-    type* temp = new type[capacity];
-    for(size_t i=0; i<size; i++)
-        temp[i]= std::move(first[i]);
+    reallocate((oldCap == 0)? 1: oldCap*2);  
+}
 
-    delete[] first;
-    first = temp;
-    last = first + size;
-    end = first + capacity;
+template <typename type>
+size_t vec<type>::capacity() const
+{
+    return end - first;
+}
+
+template <typename type>
+void vec<type>::reserve(size_t newCap)
+{
+    if(newCap > capacity())                 
+        reallocate(newCap);
 }
 
 template <typename type>
@@ -31,6 +48,41 @@ vec<type>::vec(size_t size, const type& val)
         first[i] = val; 
     end = first + size; 
     last = end;
+}
+
+template <typename type>
+vec<type>::vec(const vec& other)
+{
+    size_t s = other.size();
+    first = new type[s];                    
+    for(size_t i=0; i<s; i++)
+        first[i] = other.first[i];           
+    last = end = first + s;
+}
+
+template <typename type>
+vec<type>::vec(vec&& other) noexcept
+{
+    first = other.first;
+    last = other.last;
+    end = other.end;
+    other.first = other.last = other.end = nullptr; 
+}
+
+template <typename type>
+vec<type>& vec<type>::operator=(vec other)    // parameter taken BY VALUE
+{
+    swap(other);
+    return *this;
+}
+
+template <typename type>
+void vec<type>::swap(vec& other) noexcept
+{
+    type* t;
+    t = first; first = other.first; other.first = t;
+    t = last;  last  = other.last;  other.last  = t;
+    t = end;   end   = other.end;   other.end   = t;
 }
 
 template <typename type>
@@ -121,6 +173,12 @@ type& vec<type>::front()
 
 template <typename type>
 type& vec<type>::back()
+{
+    return *(last-1);
+}
+
+template <typename type>
+const type& vec<type>::back() const
 {
     return *(last-1);
 }
