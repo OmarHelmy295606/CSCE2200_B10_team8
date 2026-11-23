@@ -219,7 +219,26 @@ bool BFM::loadBF(std::string inputfile){
     return true;
 }
 
-// loading from truth table
+void BFM::loadTruthTable(const Bitset& table, const Bitset& dont_care_rows, const vec<std::string>& names){
+    variables_num = (int)names.size();
+    resetData(); // needs variables_num to make the Bitsets the right size
+    is_using_minterms = true;
+
+    variable_names.clear();
+    for(size_t i=0;i<names.size();i++) variable_names.push_back(names[i]);
+
+    for(int row=0;row<table.size();row++){
+        if(dont_care_rows.test(row)){
+            dont_cares.push_back(row);
+            dont_cares_set.set(row);
+        }
+        else if(table.test(row)){
+            minterms.push_back(row);
+            minterms_set.set(row);
+        }
+    }
+    input_terms = minterms;
+}
 
 void BFM::printTermList(const std::string label, const vec<int>& terms) {
     std::cout << label << ": ";

@@ -1,5 +1,8 @@
 tests/test_bitset
 tests/test_bddstore
 tests/test_heap
+tests/test_expression
 *.o
+tests/test_bfm
 *.exe
+build/
