@@ -2,4 +2,4 @@ tests/test_bitset
 tests/test_bddstore
 tests/test_heap
 *.o
-*.exe
+tests/test_bfm
