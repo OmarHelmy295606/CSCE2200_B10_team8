@@ -160,6 +160,12 @@ type& vec<type>::operator[](size_t index)
 }
 
 template <typename type>
+const type& vec<type>::operator[](size_t index) const
+{
+    return first[index];
+}
+
+template <typename type>
 bool vec<type>::empty() const
 {
     return first == last;

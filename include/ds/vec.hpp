@@ -35,6 +35,7 @@ class vec
     size_t capacity() const;
     type& at(size_t);
     type& operator[](size_t);
+    const type& operator[](size_t) const;
     bool empty() const;
     type& front();
     type& back();
