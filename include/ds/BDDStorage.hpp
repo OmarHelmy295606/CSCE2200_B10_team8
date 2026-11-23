@@ -10,7 +10,7 @@ struct BDDNode
      int var, low, high; 
 
 
-     BDDNode(int v, int l, int h): var(v), low(l), high(h){}
+     BDDNode(int v=0, int l=0, int h=0): var(v), low(l), high(h){}
      bool operator==(const BDDNode& key)
      {
         return (var == key.var && low == key.low && high == key.high);
@@ -29,7 +29,7 @@ class BDDStorage
     private:
         vec<BDDNode> nodes;
         hashMap<BDDNode, int> uniqueTable;
-        int n;
+        int n; //numVariables
     public:
         explicit BDDStorage(int numVars); 
         int mk(int var, int low, int high); 
