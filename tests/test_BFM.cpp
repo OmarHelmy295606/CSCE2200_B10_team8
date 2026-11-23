@@ -26,6 +26,22 @@ bool minimizeFile(BFM& f, const string& path) {
     return true;
 }
 
+// builds a truth table from a list of rows, -1 ends the list
+Bitset tableOf(int rows, const int* ones) {
+    Bitset table(rows);
+    for (int i = 0; ones[i] != -1; i++) table.set(ones[i]);
+    return table;
+}
+
+// runs the whole minimization on a truth table
+void minimizeTable(BFM& f, const Bitset& table, const Bitset& dont_cares, const vec<string>& names) {
+    f.loadTruthTable(table, dont_cares, names);
+    f.generatePrimeImplicants();
+    f.generateEPIs();
+    f.greedyCover();
+    f.generateExpressions();
+}
+
 // the number of product terms in the first line of an expected file (the exact minimum)
 int expectedTerms(const string& path) {
     ifstream in(path);
@@ -82,6 +98,33 @@ int main(int argc, char* argv[]) {
     check(minimizeFile(greedy, cases + "/greedy/01_greedy_not_minimal.txt"), "greedy example: the file is loaded");
     check(greedy.solutionIsCorrect(), "greedy example: the cover is still correct");
     check(greedy.solutionSize() == 5, "greedy example: greedy takes 5 terms");
+
+
+    // loading from a truth table: AB + A'C + BC is 1 on the rows 1, 3, 6, 7
+    vec<string> abc;
+    abc.push_back("A"); abc.push_back("B"); abc.push_back("C");
+    int rows[] = {1, 3, 6, 7, -1};
+    BFM t;
+    minimizeTable(t, tableOf(8, rows), Bitset(8), abc);
+    check(t.getExpression() == "A'C + AB", "table: AB + A'C + BC gives A'C + AB");
+
+    // a dont care that is also 1 in the table is a dont care, so 0 alone gives 0
+    int zero_row[] = {0, -1};
+    BFM d;
+    minimizeTable(d, tableOf(8, zero_row), tableOf(8, zero_row), abc);
+    check(d.getExpression() == "0", "table: the dont cares win over the table");
+
+    // the names come from the caller
+    vec<string> xy;
+    xy.push_back("x1"); xy.push_back("y1");
+    int x_rows[] = {2, 3, -1};
+    BFM n;
+    minimizeTable(n, tableOf(4, x_rows), Bitset(4), xy);
+    check(n.getExpression() == "x1", "table: the names x1, y1 are printed back");
+
+    // the same object can load a file after a table
+    check(minimizeFile(n, cases + "/valid/09_maxterm_conversion.txt") && n.solutionSize() == 2,
+          "table: a BFM can load a file after a table");
 
     // invalid files are rejected
     const char* invalid[] = {

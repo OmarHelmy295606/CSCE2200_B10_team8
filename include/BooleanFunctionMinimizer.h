@@ -7,7 +7,6 @@
 #include "ds/vec.hpp"
 #include "ds/hashMap.hpp"
 #include "ds/heap.hpp"
-// #include "Expression.h"
 //The BFM class takes a boolean function and minimizes it using QM.
 
 // used to know if an implicant was generated before
@@ -87,8 +86,12 @@ class BFM{
     BFM();
     std::string decimalToBinary(int n, int m);
     bool loadBF(std::string inputfile);
-    // the rows that are 1 in dont_care_rows are dont cares even if they are 1 in table
-// function to load the truth table
+
+    // loads the function from a truth table: row r is a minterm if it is 1 in table,
+    // and a dont care if it is 1 in dont_care_rows (the dont cares win over the table).
+    // names[i] is the name of variable i, and variable 0 is the most significant bit of a row
+    void loadTruthTable(const Bitset& table, const Bitset& dont_care_rows, const vec<std::string>& names);
+    
     void printInput();
     void generatePrimeImplicants();
     void generateEPIs();
