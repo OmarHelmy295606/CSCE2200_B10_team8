@@ -3,4 +3,4 @@ tests/test_bddstore
 tests/test_heap
 tests/test_expression
 *.o
-*.exe
+tests/test_bfm
