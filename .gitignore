@@ -5,3 +5,4 @@ tests/test_expression
 *.o
 tests/test_bfm
 *.exe
+build/
