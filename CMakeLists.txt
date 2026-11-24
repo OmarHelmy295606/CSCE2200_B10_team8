@@ -19,3 +19,5 @@ add_executable(test_ds_Heap tests/test_ds_Heap.cpp)
 add_executable(test_ds_stack tests/test_ds_stack.cpp)
 add_executable(test_Expression tests/test_Expression.cpp src/Expression.cpp src/ds_Bitset.cpp)
 add_executable(test_BFM tests/test_BFM.cpp src/BooleanFunctionMinimizer.cpp src/ds_Bitset.cpp)
+add_executable(test_BDDCount tests/test_BDDCount.cpp src/BDDCount.cpp src/BDDStorage.cpp src/ds_Bitset.cpp
+)
