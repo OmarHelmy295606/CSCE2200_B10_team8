@@ -1,4 +1,5 @@
 #include <iostream>
+#include <fstream>
 #include <string>
 #include <stdexcept>
 #include "include/Expression.h"
@@ -16,6 +17,7 @@ void printUsage()
     std::cout << "  bfm minimize \"<expression>\" -d \"<dont cares>\" the rows where the second expression is 1 are dont cares\n";
     std::cout << "  bfm minimize -f <input-file>                  minimize a file of minterms (m), maxterms (M), dont cares (d)\n";
     std::cout << "  bfm count \"<expression>\"                      count satisfying assignments\n";
+    std::cout << "  bfm bdd \"<expression>\" [-dot <file>]          show BDD statistics and optionally save the diagram\n";
     std::cout << "\nExpression: variables are a letter with optional digits (A, x1).\n";
     std::cout << "  NOT: !A or A'    AND: AB or A*B    XOR: A^B    OR: A+B\n";
 }
@@ -73,6 +75,43 @@ int runCount(const std::string &text)
     return 0;
 }
 
+int runBDD(const std::string &text, const char *dotFile = nullptr)
+{
+    VarTable vars;
+    Expression expression;
+
+    if (!loadExpression(text, vars, expression, MAX_BDD_VARIABLES))
+        return 1;
+
+    BDDEngine engine(vars.size());
+    int root = engine.fromExpression(expression);
+
+    std::cout << "Reachable nodes: " << engine.storage().countReachable(root) << '\n';
+    std::cout << "Stored nodes: " << engine.storage().size() << '\n';
+    std::cout << "Cache hits: " << engine.cacheHits()
+              << ", misses: " << engine.cacheMisses() << '\n';
+
+    if (dotFile == nullptr)
+        return 0;
+
+    std::ofstream out(dotFile);
+    if (!out)
+    {
+        std::cerr << "ERROR: could not open " << dotFile << '\n';
+        return 1;
+    }
+
+    engine.writeDot(root, vars, out);
+
+    out.close();
+    if (!out)
+    {
+        std::cerr << "ERROR: could not finish writing " << dotFile << '\n';
+        return 1;
+    }
+    return 0;
+}
+
 int runMinimize(const std::string &text, const std::string &dont_cares)
 {
     // the two expressions share the variable table, so a name means the same variable in both
@@ -127,6 +166,12 @@ int main(int argc, char *argv[])
 
         if (command == "count" && argc == 3)
             return runCount(argv[2]);
+
+        if (command == "bdd" && argc == 3)
+            return runBDD(argv[2]);
+
+        if (command == "bdd" && argc == 5 && std::string(argv[3]) == "-dot")
+            return runBDD(argv[2], argv[4]);
 
         if (command == "minimize" && argc == 4 && std::string(argv[2]) == "-f")
             return runMinimizeFile(argv[3]);
