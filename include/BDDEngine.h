@@ -6,6 +6,7 @@
 #include "ds/stack.hpp"
 #include "ds/vec.hpp"
 #include "ds/hashMap.hpp"
+#include "Expression.h"
 
 struct IteKey
 {
@@ -45,8 +46,10 @@ public:
     int bddXor(int f, int g);
 
     int fromExpression(const vec<PostfixToken> &postfix);
+    int fromExpression(const Expression &expression);
     bool equivalent(int f, int g) const;
     bool findOne(int f, vec<int> &assignment) const;
+    unsigned long long satCount(int root) const;
 
     BDDStorage &storage();
     const BDDStorage &storage() const;

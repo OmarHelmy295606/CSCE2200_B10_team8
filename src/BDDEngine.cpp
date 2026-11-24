@@ -1,4 +1,5 @@
 #include "../include/BDDEngine.h"
+#include "../include/BDDCount.h"
 
 bool operator==(const IteKey &a, const IteKey &b)
 {
@@ -104,6 +105,30 @@ int BDDEngine::fromExpression(const vec<PostfixToken> &postfix)
     return ids.pop();
 }
 
+int BDDEngine::fromExpression(const Expression &expression)
+{
+    const vec<Token>& tokens = expression.postfix();
+    vec<PostfixToken> postfix;
+
+    for (size_t i = 0; i < tokens.size(); i++) {
+        PostfixToken::Kind kind;
+
+        switch (tokens[i].type) {
+            case TOK_VAR:   kind = PostfixToken::VAR;   break;
+            case TOK_CONST: kind = PostfixToken::CONST; break;
+            case TOK_NOT:   kind = PostfixToken::NOT;   break;
+            case TOK_AND:   kind = PostfixToken::AND;   break;
+            case TOK_OR:    kind = PostfixToken::OR;    break;
+            case TOK_XOR:   kind = PostfixToken::XOR;   break;
+            default: throw std::invalid_argument("Unexpected postfix token");
+        }
+
+        postfix.push_back(PostfixToken(kind, tokens[i].value));
+    }
+
+    return fromExpression(postfix);
+}
+
 bool BDDEngine::equivalent(int f, int g) const
 {
     return f == g;
@@ -133,7 +158,10 @@ bool BDDEngine::findOne(int f, vec<int> &assignment) const
     }
     return true;
 }
-
+unsigned long long BDDEngine::satCount(int root) const
+{
+    return ::satCount(store, root);
+}
 BDDStorage &BDDEngine::storage() { return store; }
 const BDDStorage &BDDEngine::storage() const { return store; }
 int BDDEngine::numVars() { return store.numVars(); }

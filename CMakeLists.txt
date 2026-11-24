@@ -3,7 +3,15 @@ project(BooleanMinimizerBDD CXX)
 set(CMAKE_CXX_STANDARD 17)
 
 # the program
-add_executable(bfm main.cpp src/Expression.cpp src/BooleanFunctionMinimizer.cpp src/ds_Bitset.cpp)
+add_executable(bfm
+    main.cpp
+    src/Expression.cpp
+    src/BooleanFunctionMinimizer.cpp
+    src/ds_Bitset.cpp
+    src/BDDEngine.cpp
+    src/BDDStorage.cpp
+    src/BDDCount.cpp
+)
 
 # the tests
 add_executable(test_ds_Bitset tests/test_ds_Bitset.cpp src/ds_Bitset.cpp)
