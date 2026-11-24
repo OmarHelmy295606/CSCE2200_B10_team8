@@ -176,3 +176,57 @@ void BDDEngine::clearCache()
     hits = 0;
     misses = 0;
 }
+
+void BDDEngine::writeDot(int root, const VarTable& vars, std::ostream& out) const
+{
+    stack<int> pending;
+    Bitset visited(store.size());
+
+    int numVars = store.numVars();
+    vec<vec<int>> levels(numVars + 1);  // one row per variable, plus the terminals
+
+    pending.push(root);
+    visited.set(root);
+
+    out << "digraph BDD {\n";
+
+    while (!pending.empty()) {
+        int id = pending.pop();
+        int level = store.getVar(id);
+        levels[level].push_back(id);
+
+        if (store.isTerminal(id)) {
+            out << "  n" << id << " [label=\"" << id << "\", shape=box];\n";
+            continue;
+        }
+
+        int low = store.getLow(id);
+        int high = store.getHigh(id);
+
+        out << "  n" << id << " [label=\"" << vars.name(level) << "\"];\n";
+        out << "  n" << id << " -> n" << low  << " [style=dashed];\n";
+        out << "  n" << id << " -> n" << high << " [style=solid];\n";
+
+        int children[2] = {low, high};
+        for (int i = 0; i < 2; i++) {
+            int child = children[i];
+            if (!visited.test(child)) {
+                visited.set(child);
+                pending.push(child);
+            }
+        }
+    }
+
+    // tell Graphviz which nodes should be drawn on the same row
+    for (int level = 0; level <= numVars; level++) {
+        if (levels[level].empty())
+            continue;
+
+        out << "  { rank=same;";
+        for (size_t i = 0; i < levels[level].size(); i++)
+            out << " n" << levels[level][i] << ";";
+        out << " }\n";
+    }
+
+    out << "}\n";
+}

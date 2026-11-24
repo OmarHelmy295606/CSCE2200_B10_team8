@@ -7,6 +7,7 @@
 #include "ds/vec.hpp"
 #include "ds/hashMap.hpp"
 #include "Expression.h"
+#include <iostream>
 
 struct IteKey
 {
@@ -50,6 +51,7 @@ public:
     bool equivalent(int f, int g) const;
     bool findOne(int f, vec<int> &assignment) const;
     unsigned long long satCount(int root) const;
+    void writeDot(int root, const VarTable& vars, std::ostream& out) const;
 
     BDDStorage &storage();
     const BDDStorage &storage() const;
